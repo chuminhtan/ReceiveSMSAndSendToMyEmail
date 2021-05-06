@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">ReceivingAndSendSMS</string>
-    <string name="email_hint">Nhập Email</string>
+    <string name="email_hint">Nhập email người nhận</string>
 </resources>

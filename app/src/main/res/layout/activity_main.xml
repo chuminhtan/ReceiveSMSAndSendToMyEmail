@@ -13,7 +13,7 @@
         android:textAlignment="center"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Ứng dụng nhận SMS và Gửi qua Email" />
+        android:text="Chu Minh Tân - 17521008" />
 
 
     <LinearLayout
@@ -56,12 +56,33 @@
             android:layout_gravity="center" />
 
     </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="40dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email người gửi:"
+            android:textColor="@color/colorSecondary"
+            android:layout_marginRight="20dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="chuminhtan.test@gmail.com"
+            android:textColor="@color/colorText"
+            android:layout_marginRight="20dp"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp" >
 
         <TextView
             android:layout_width="wrap_content"

@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -15,8 +17,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+
 public class MainActivity extends AppCompatActivity implements RequirePermissionDialog.PermissionDialogListener, View.OnClickListener {
     private int RECEIVE_SMS_PERMISSIONs_CODE = 1;
+    private int INTERNET_PERMISSIONs_CODE = 2;
 
     private EditText emailEdit;
     private Button confirmEmailBtn;
@@ -34,20 +44,30 @@ public class MainActivity extends AppCompatActivity implements RequirePermission
         confirmEmailBtn = findViewById(R.id.confirm_email_button);
         emailText = findViewById(R.id.email_textview);
 
+        setEmail();
+
         confirmEmailBtn.setOnClickListener(this);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setEmail();
+    }
+
     private void checkForSmsPermission() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECEIVE_SMS)
+                != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED
+        ) {
             openDialog();
         }
     }
 
     private void openDialog() {
         RequirePermissionDialog dialog = new RequirePermissionDialog();
-        dialog.show(getSupportFragmentManager(),"Yêu cầu quyền truy cập tin nhắn");
+        dialog.show(getSupportFragmentManager(), "Yêu cầu quyền truy cập tin nhắn");
     }
 
     @Override
@@ -62,29 +82,32 @@ public class MainActivity extends AppCompatActivity implements RequirePermission
     public void applyForPermission(boolean isApply) {
         if (isApply == true) {
             // Permission not yet granted. Use requestPermissions().
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECEIVE_SMS},RECEIVE_SMS_PERMISSIONs_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECEIVE_SMS}, RECEIVE_SMS_PERMISSIONs_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, INTERNET_PERMISSIONs_CODE);
         }
     }
 
     @Override
     public void onClick(View v) {
 
-        switch(v.getId()) {
-            case R.id.confirm_email_button :
+        switch (v.getId()) {
+            case R.id.confirm_email_button:
                 String emailReceive = emailEdit.getText().toString().trim();
 
                 if (emailReceive.isEmpty() || !isValid(emailReceive)) {
                     Toast.makeText(MainActivity.this, "Email Không Hợp Lệ", Toast.LENGTH_SHORT)
                             .show();
                 } else {
-                    EMAIL = emailReceive;
-                    emailText.setText(EMAIL);
+                    emailText.setText(emailReceive);
+                    emailEdit.setText("");
+                    SharedPreferences sharedPref = this.getSharedPreferences("Info", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("email", emailReceive);
+                    editor.commit();
 
-                    Toast.makeText(MainActivity.this, "Đã Lưu Email Người Nhận", Toast.LENGTH_SHORT)
+                    Toast.makeText(MainActivity.this, "Đã Lưu Email", Toast.LENGTH_SHORT)
                             .show();
                 }
-
-
         }
     }
 
@@ -92,4 +115,14 @@ public class MainActivity extends AppCompatActivity implements RequirePermission
         String regex = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
         return email.matches(regex);
     }
+
+    private void setEmail() {
+        SharedPreferences sharedPref = this.getSharedPreferences("Info", Context.MODE_PRIVATE);
+        String email = sharedPref.getString("email", "");
+
+        if (!email.isEmpty()) {
+            emailText.setText(email);
+        }
+    }
+
 }
